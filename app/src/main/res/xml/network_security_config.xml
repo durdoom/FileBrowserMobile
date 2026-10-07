@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+
+    <!--
+      Разрешаем cleartext (HTTP) для self-hosted сценариев,
+      потому что адрес сервера вводит пользователь вручную.
+      Для внешнего доступа рекомендуется HTTPS/VPN/reverse proxy.
+    -->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+</network-security-config>
