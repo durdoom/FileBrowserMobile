@@ -18,13 +18,44 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            val keystorePropsFile = rootProject.file("keystore.properties")
+            if (keystorePropsFile.exists()) {
+                val props = java.util.Properties()
+                props.load(keystorePropsFile.inputStream())
+                val storeFilePath = props.getProperty("storeFile") ?: "filebrowser-mobile-release.jks"
+                storeFile = rootProject.file(storeFilePath)
+                storePassword = props.getProperty("storePassword") ?: ""
+                keyAlias = props.getProperty("keyAlias") ?: "filebrowser-mobile"
+                keyPassword = props.getProperty("keyPassword") ?: ""
+                println("? Signing: using keystore ${storeFile?.absolutePath}")
+            } else {
+                println("?? Signing: keystore.properties NOT FOUND at ${keystorePropsFile.absolutePath}")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            val hasKeystore = rootProject.file("keystore.properties").exists()
+            println("?? Build type release: hasKeystore=$hasKeystore")
+            signingConfig = if (hasKeystore) {
+                signingConfigs.getByName("release")
+            } else {
+                println("?? Falling back to debug signing")
+                signingConfigs.getByName("debug")
+            }
+        }
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
         }
     }
 

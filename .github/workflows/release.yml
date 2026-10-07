@@ -24,24 +24,52 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Decode Keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > filebrowser-mobile-release.jks
-          cat > keystore.properties << EOF
+          set -e
+          echo "=== Workspace ==="
+          pwd
+          ls -la
+          echo "=== Decoding keystore ==="
+          echo "$KEYSTORE_BASE64" | base64 -d > filebrowser-mobile-release.jks
+          ls -la filebrowser-mobile-release.jks
+          echo "=== Creating keystore.properties ==="
+          cat > keystore.properties <<EOF
           storeFile=filebrowser-mobile-release.jks
-          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
-          keyAlias=${{ secrets.KEY_ALIAS }}
-          keyPassword=${{ secrets.KEY_PASSWORD }}
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
           EOF
+          echo "=== keystore.properties content ==="
+          cat keystore.properties
+          echo "=== Files after decode ==="
+          ls -la
+
+      - name: Verify Keystore
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          file filebrowser-mobile-release.jks
+          keytool -list -keystore filebrowser-mobile-release.jks -storepass "$KEYSTORE_PASSWORD" | head -20
 
       - name: Build Release APK
         run: ./gradlew assembleRelease --no-daemon
 
+      - name: List APKs
+        run: |
+          echo "=== APKs in release folder ==="
+          find app/build/outputs/apk/release -type f -name "*.apk" -exec ls -la {} \;
+
       - name: Rename APK
         run: |
+          VERSION="${GITHUB_REF_NAME}"
           APK=$(find app/build/outputs/apk/release -name "*.apk" -type f | head -n 1)
           echo "Found APK: $APK"
-          cp "$APK" "app/build/outputs/apk/release/FileBrowserMobile-v1.0.0.apk"
-          ls -la app/build/outputs/apk/release/
+          cp "$APK" "app/build/outputs/apk/release/FileBrowserMobile-${VERSION}.apk"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -53,7 +81,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: app/build/outputs/apk/release/*.apk
+          files: app/build/outputs/apk/release/FileBrowserMobile-*.apk
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
