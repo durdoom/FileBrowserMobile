@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -22,7 +24,7 @@ android {
         create("release") {
             val keystorePropsFile = rootProject.file("keystore.properties")
             if (keystorePropsFile.exists()) {
-                val props = java.util.Properties()
+                val props = Properties()
                 props.load(keystorePropsFile.inputStream())
                 val storeFilePath = props.getProperty("storeFile") ?: "filebrowser-mobile-release.jks"
                 storeFile = rootProject.file(storeFilePath)
