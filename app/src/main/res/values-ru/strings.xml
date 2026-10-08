@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">File Browser Mobile</string>
+
+    <string name="change_server">Изменить сервер</string>
+    <string name="reload">Перезагрузить</string>
+    <string name="clear_session">Очистить сессию</string>
+    <string name="about">О приложении</string>
+
+    <string name="server_dialog_title">Адрес File Browser</string>
+    <string name="server_dialog_message">Укажите адрес вашего File Browser</string>
+    <string name="server_dialog_hint">https://files.example.com</string>
+    <string name="server_dialog_positive">Подключиться</string>
+    <string name="server_dialog_negative">Отмена</string>
+    <string name="server_invalid">Некорректный адрес. Пример: https://files.example.com</string>
+
+    <string name="retry">Повторить</string>
+    <string name="error_generic">Не удалось подключиться к серверу.\n\nПроверь:\n• адрес сервера\n• VPN\n• Wi-Fi\n• доступность File Browser</string>
+
+    <string name="clear_session_title">Очистить сессию?</string>
+    <string name="clear_session_message">Cookies, localStorage и кэш WebView будут удалены. Потребуется повторный вход.</string>
+    <string name="clear_session_positive">Очистить</string>
+    <string name="clear_session_done">Сессия очищена</string>
+
+    <string name="download_started">Загрузка началась</string>
+    <string name="download_failed">Не удалось начать загрузку</string>
+    <string name="download_description">Загрузка из File Browser</string>
+
+    <string name="no_app_for_link">Нет приложения для обработки ссылки</string>
+    <string name="could_not_open_link">Не удалось открыть ссылку</string>
+
+    <string name="about_message">Версия %1$s\n\nWebView-клиент для self-hosted File Browser.</string>
+
+    <!-- Сообщения об ошибках сервера -->
+    <string name="error_invalid_url">Некорректный адрес.</string>
+    <string name="error_dns">Не удалось найти сервер (DNS). Проверьте адрес.</string>
+    <string name="error_connection_refused">Сервер не отвечает. Возможно, он выключен или недоступен из вашей сети.</string>
+    <string name="error_timeout">Сервер не отвечает (таймаут).</string>
+    <string name="error_ssl_unrecognized">Сервер не знает этот домен. Проверьте SSL/домен в конфигурации.</string>
+    <string name="error_ssl_certificate">Проблема с сертификатом сервера. Проверьте SSL.</string>
+    <string name="error_ssl_other">Ошибка защищённого соединения.</string>
+    <string name="error_backend_down">Бэкенд File Browser не отвечает (502). Проверьте контейнер.</string>
+    <string name="error_service_unavailable">Сервис временно недоступен (503).</string>
+    <string name="error_gateway_timeout">Сервер не получил ответ от бэкенда (504).</string>
+    <string name="error_server">Сервер вернул ошибку (%1$d).</string>
+    <string name="error_unknown">Не удалось подключиться: %1$s</string>
+
+    <!-- HTTP-коды ошибок -->
+    <string name="http_401">Требуется авторизация (401). Войдите в File Browser.</string>
+    <string name="http_403">Доступ запрещён (403).</string>
+    <string name="http_404">Страница не найдена (404).</string>
+    <string name="http_500">Ошибка сервера (500).</string>
+    <string name="http_502">Бэкенд File Browser не отвечает (502). Проверьте контейнер.</string>
+    <string name="http_503">Сервис временно недоступен (503).</string>
+    <string name="http_504">Сервер не получил ответ от бэкенда (504).</string>
+
+    <!-- Определение встроенной страницы ошибки WebView -->
+    <string name="error_webview_unavailable">Сервер недоступен. Проверьте адрес, VPN, Wi-Fi.</string>
+</resources>

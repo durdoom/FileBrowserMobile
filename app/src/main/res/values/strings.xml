@@ -2,28 +2,58 @@
 <resources>
     <string name="app_name">File Browser Mobile</string>
 
-    <string name="change_server">Изменить сервер</string>
-    <string name="reload">Перезагрузить</string>
-    <string name="clear_session">Очистить сессию</string>
-    <string name="about">О приложении</string>
+    <string name="change_server">Change server</string>
+    <string name="reload">Reload</string>
+    <string name="clear_session">Clear session</string>
+    <string name="about">About</string>
 
-    <string name="server_dialog_title">Адрес File Browser</string>
-    <string name="server_dialog_message">Укажите адрес вашего File Browser</string>
+    <string name="server_dialog_title">File Browser address</string>
+    <string name="server_dialog_message">Enter your File Browser address</string>
     <string name="server_dialog_hint">https://files.example.com</string>
-    <string name="server_dialog_positive">Подключиться</string>
-    <string name="server_dialog_negative">Отмена</string>
-    <string name="server_invalid">Некорректный адрес. Пример: https://files.example.com</string>
+    <string name="server_dialog_positive">Connect</string>
+    <string name="server_dialog_negative">Cancel</string>
+    <string name="server_invalid">Invalid address. Example: https://files.example.com</string>
 
-    <string name="retry">Повторить</string>
-    <string name="error_generic">Не удалось подключиться к серверу.\n\nПроверь:\n• адрес сервера\n• VPN\n• Wi-Fi\n• доступность File Browser</string>
+    <string name="retry">Retry</string>
+    <string name="error_generic">Could not connect to the server.\n\nCheck:\n• server address\n• VPN\n• Wi-Fi\n• File Browser availability</string>
 
-    <string name="clear_session_title">Очистить сессию?</string>
-    <string name="clear_session_message">Cookies, localStorage и кэш WebView будут удалены. Потребуется повторный вход.</string>
-    <string name="clear_session_positive">Очистить</string>
-    <string name="clear_session_done">Сессия очищена</string>
+    <string name="clear_session_title">Clear session?</string>
+    <string name="clear_session_message">Cookies, localStorage and WebView cache will be cleared. You will need to sign in again.</string>
+    <string name="clear_session_positive">Clear</string>
+    <string name="clear_session_done">Session cleared</string>
 
-    <string name="download_started">Загрузка началась</string>
-    <string name="download_failed">Не удалось начать загрузку</string>
+    <string name="download_started">Download started</string>
+    <string name="download_failed">Could not start download</string>
+    <string name="download_description">Download from File Browser</string>
 
-    <string name="no_app_for_link">Нет приложения для обработки ссылки</string>
+    <string name="no_app_for_link">No app to handle this link</string>
+    <string name="could_not_open_link">Could not open link</string>
+
+    <string name="about_message">Version %1$s\n\nWebView client for self-hosted File Browser.</string>
+
+    <!-- Server error messages -->
+    <string name="error_invalid_url">Invalid address.</string>
+    <string name="error_dns">Server not found (DNS). Check the address.</string>
+    <string name="error_connection_refused">Server is not responding. It may be off or unreachable from your network.</string>
+    <string name="error_timeout">Server is not responding (timeout).</string>
+    <string name="error_ssl_unrecognized">Server does not recognize this domain. Check SSL/domain configuration.</string>
+    <string name="error_ssl_certificate">Server certificate problem. Check SSL settings.</string>
+    <string name="error_ssl_other">Secure connection error.</string>
+    <string name="error_backend_down">File Browser backend is down (502). Check the container.</string>
+    <string name="error_service_unavailable">Service temporarily unavailable (503).</string>
+    <string name="error_gateway_timeout">Server did not get a response from backend (504).</string>
+    <string name="error_server">Server returned an error (%1$d).</string>
+    <string name="error_unknown">Could not connect: %1$s</string>
+
+    <!-- HTTP error codes -->
+    <string name="http_401">Authentication required (401). Sign in to File Browser.</string>
+    <string name="http_403">Access denied (403).</string>
+    <string name="http_404">Page not found (404).</string>
+    <string name="http_500">Server error (500).</string>
+    <string name="http_502">File Browser backend is down (502). Check the container.</string>
+    <string name="http_503">Service temporarily unavailable (503).</string>
+    <string name="http_504">Server did not get a response from backend (504).</string>
+
+    <!-- WebView error page detection -->
+    <string name="error_webview_unavailable">Server unavailable. Check the address, VPN, Wi-Fi.</string>
 </resources>

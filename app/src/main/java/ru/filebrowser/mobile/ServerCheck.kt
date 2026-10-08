@@ -14,11 +14,26 @@ import javax.net.ssl.SSLSocket
 
 object ServerCheck {
 
-    suspend fun check(url: String): String? = withContext(Dispatchers.IO) {
+    enum class Error {
+        INVALID_URL,
+        DNS_ERROR,
+        CONNECTION_REFUSED,
+        TIMEOUT,
+        SSL_UNRECOGNIZED_NAME,
+        SSL_CERTIFICATE,
+        SSL_OTHER,
+        BACKEND_DOWN,
+        SERVICE_UNAVAILABLE,
+        GATEWAY_TIMEOUT,
+        SERVER_ERROR,
+        UNKNOWN
+    }
+
+    suspend fun check(url: String): Error? = withContext(Dispatchers.IO) {
         try {
             val uri = URI(url)
             val scheme = uri.scheme?.lowercase()
-            val host = uri.host ?: return@withContext "Некорректный адрес."
+            val host = uri.host ?: return@withContext Error.INVALID_URL
             val port = when {
                 uri.port != -1 -> uri.port
                 scheme == "https" -> 443
@@ -35,13 +50,13 @@ object ServerCheck {
 
             null
         } catch (e: UnknownHostException) {
-            "Не удалось найти сервер (DNS). Проверьте адрес."
+            Error.DNS_ERROR
         } catch (e: Exception) {
-            "Не удалось подключиться: ${e.message ?: "неизвестная ошибка"}"
+            Error.UNKNOWN
         }
     }
 
-    private fun checkTls(host: String, port: Int): String? {
+    private fun checkTls(host: String, port: Int): Error? {
         var socket: SSLSocket? = null
         return try {
             val factory = SSLContext.getDefault().socketFactory
@@ -58,26 +73,23 @@ object ServerCheck {
         } catch (e: SSLHandshakeException) {
             val msg = e.message ?: ""
             when {
-                msg.contains("unrecognized_name", ignoreCase = true) ->
-                    "Сервер не знает домен $host. Проверьте SSL/домен в NPM."
+                msg.contains("unrecognized_name", ignoreCase = true) -> Error.SSL_UNRECOGNIZED_NAME
                 msg.contains("certificate", ignoreCase = true) ||
-                        msg.contains("PKIX", ignoreCase = true) ->
-                    "Проблема с сертификатом сервера. Проверьте SSL в NPM."
-                else ->
-                    "Ошибка защищённого соединения: $msg"
+                        msg.contains("PKIX", ignoreCase = true) -> Error.SSL_CERTIFICATE
+                else -> Error.SSL_OTHER
             }
         } catch (e: java.net.SocketTimeoutException) {
-            "Сервер не отвечает (таймаут)."
+            Error.TIMEOUT
         } catch (e: java.net.ConnectException) {
-            "Сервер не отвечает. Возможно, он выключен или недоступен."
+            Error.CONNECTION_REFUSED
         } catch (e: Exception) {
-            "Ошибка SSL: ${e.message ?: "неизвестная"}"
+            Error.SSL_OTHER
         } finally {
             try { socket?.close() } catch (_: Exception) {}
         }
     }
 
-    private fun checkHttp(url: String): String? {
+    private fun checkHttp(url: String): Error? {
         var conn: HttpURLConnection? = null
         return try {
             conn = (URL(url).openConnection() as HttpURLConnection).apply {
@@ -92,14 +104,14 @@ object ServerCheck {
             when {
                 code in 200..399 -> null
                 code == 401 || code == 403 -> null
-                code == 502 -> "Бэкенд FileBrowser не отвечает (502). Проверьте контейнер."
-                code == 503 -> "Сервис временно недоступен (503)."
-                code == 504 -> "Сервер не получил ответ от бэкенда (504)."
-                code in 500..599 -> "Сервер вернул ошибку $code."
-                else -> "Сервер ответил кодом $code."
+                code == 502 -> Error.BACKEND_DOWN
+                code == 503 -> Error.SERVICE_UNAVAILABLE
+                code == 504 -> Error.GATEWAY_TIMEOUT
+                code in 500..599 -> Error.SERVER_ERROR
+                else -> Error.UNKNOWN
             }
         } catch (e: Exception) {
-            "Ошибка HTTP: ${e.message ?: "неизвестная"}"
+            Error.UNKNOWN
         } finally {
             conn?.disconnect()
         }

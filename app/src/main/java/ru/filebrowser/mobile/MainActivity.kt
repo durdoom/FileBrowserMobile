@@ -150,7 +150,6 @@ class MainActivity : AppCompatActivity() {
 
             override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
-                // При новой загрузке сбрасываем экран ошибки.
                 if (errorContainer.isVisible) {
                     errorContainer.isVisible = false
                     webView.isVisible = true
@@ -159,7 +158,6 @@ class MainActivity : AppCompatActivity() {
 
             override fun onPageCommitVisible(view: WebView, url: String) {
                 super.onPageCommitVisible(view, url)
-                // Момент, когда заголовок уже известен, но контент ещё не отрисован.
                 checkForWebViewErrorPage(view)
             }
 
@@ -191,13 +189,13 @@ class MainActivity : AppCompatActivity() {
                 super.onReceivedHttpError(view, request, errorResponse)
                 if (!request.isForMainFrame) return
                 when (errorResponse.statusCode) {
-                    401 -> showError("Требуется авторизация (401). Войдите в File Browser.")
-                    403 -> showError("Доступ запрещён (403).")
-                    404 -> showError("Страница не найдена (404).")
-                    500 -> showError("Ошибка сервера (500).")
-                    502 -> showError("Бэкенд FileBrowser не отвечает (502). Проверьте контейнер.")
-                    503 -> showError("Сервис временно недоступен (503).")
-                    504 -> showError("Сервер не получил ответ от бэкенда (504).")
+                    401 -> showError(getString(R.string.http_401))
+                    403 -> showError(getString(R.string.http_403))
+                    404 -> showError(getString(R.string.http_404))
+                    500 -> showError(getString(R.string.http_500))
+                    502 -> showError(getString(R.string.http_502))
+                    503 -> showError(getString(R.string.http_503))
+                    504 -> showError(getString(R.string.http_504))
                     else -> Unit
                 }
             }
@@ -209,7 +207,7 @@ class MainActivity : AppCompatActivity() {
             ) {
                 handler.cancel()
                 view.stopLoading()
-                showError("Ошибка защищённого соединения. Проверьте сертификат сервера.")
+                showError(getString(R.string.error_ssl_certificate))
             }
         }
 
@@ -254,10 +252,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Проверяет, не показал ли WebView свою встроенную страницу ошибки.
-     * Если да — останавливает загрузку, очищает WebView и показывает свой экран.
-     */
     private fun checkForWebViewErrorPage(view: WebView) {
         view.evaluateJavascript(
             "(function(){return document.title || '';})();"
@@ -273,7 +267,7 @@ class MainActivity : AppCompatActivity() {
             if (isError) {
                 view.stopLoading()
                 view.loadUrl("about:blank")
-                showError("Сервер недоступен. Проверьте адрес, VPN, Wi-Fi.")
+                showError(getString(R.string.error_webview_unavailable))
             } else if (!errorContainer.isVisible) {
                 webView.isVisible = true
             }
@@ -321,9 +315,9 @@ class MainActivity : AppCompatActivity() {
         try {
             startActivity(Intent(Intent.ACTION_VIEW, uri))
         } catch (_: ActivityNotFoundException) {
-            Toast.makeText(this, "Нет приложения для обработки ссылки", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.no_app_for_link), Toast.LENGTH_SHORT).show()
         } catch (_: Exception) {
-            Toast.makeText(this, "Не удалось открыть ссылку", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.could_not_open_link), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -338,7 +332,7 @@ class MainActivity : AppCompatActivity() {
             val request = DownloadManager.Request(url.toUri()).apply {
                 setMimeType(mimetype)
                 setTitle(fileName)
-                setDescription("Загрузка из File Browser")
+                setDescription(getString(R.string.download_description))
                 setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 setDestinationInExternalPublicDir(
                     android.os.Environment.DIRECTORY_DOWNLOADS,
@@ -355,9 +349,13 @@ class MainActivity : AppCompatActivity() {
             }
             val dm = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
             dm.enqueue(request)
-            Toast.makeText(this, "Загрузка началась", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.download_started), Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            Toast.makeText(this, "Не удалось начать загрузку: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                this,
+                getString(R.string.download_failed) + ": ${e.message}",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -370,7 +368,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val error = ServerCheck.check(url)
             if (error != null) {
-                showError(error)
+                showError(errorToString(error))
             } else {
                 webView.loadUrl(url)
             }
@@ -385,20 +383,35 @@ class MainActivity : AppCompatActivity() {
         errorText.text = message
     }
 
+    private fun errorToString(error: ServerCheck.Error): String = when (error) {
+        ServerCheck.Error.INVALID_URL -> getString(R.string.error_invalid_url)
+        ServerCheck.Error.DNS_ERROR -> getString(R.string.error_dns)
+        ServerCheck.Error.CONNECTION_REFUSED -> getString(R.string.error_connection_refused)
+        ServerCheck.Error.TIMEOUT -> getString(R.string.error_timeout)
+        ServerCheck.Error.SSL_UNRECOGNIZED_NAME -> getString(R.string.error_ssl_unrecognized)
+        ServerCheck.Error.SSL_CERTIFICATE -> getString(R.string.error_ssl_certificate)
+        ServerCheck.Error.SSL_OTHER -> getString(R.string.error_ssl_other)
+        ServerCheck.Error.BACKEND_DOWN -> getString(R.string.error_backend_down)
+        ServerCheck.Error.SERVICE_UNAVAILABLE -> getString(R.string.error_service_unavailable)
+        ServerCheck.Error.GATEWAY_TIMEOUT -> getString(R.string.error_gateway_timeout)
+        ServerCheck.Error.SERVER_ERROR -> getString(R.string.error_server, 0)
+        ServerCheck.Error.UNKNOWN -> getString(R.string.error_generic)
+    }
+
     private fun mapError(code: Int): String = when (code) {
-        WebViewClient.ERROR_HOST_LOOKUP -> "Не удалось найти сервер (DNS)."
-        WebViewClient.ERROR_CONNECT -> "Сервер не отвечает. Возможно, он выключен или недоступен."
-        WebViewClient.ERROR_TIMEOUT -> "Сервер не отвечает (таймаут)."
-        WebViewClient.ERROR_FAILED_SSL_HANDSHAKE -> "Ошибка защищённого соединения."
-        WebViewClient.ERROR_BAD_URL -> "Некорректный адрес."
-        WebViewClient.ERROR_UNSUPPORTED_SCHEME -> "Неподдерживаемая схема адреса."
-        WebViewClient.ERROR_TOO_MANY_REQUESTS -> "Слишком много запросов."
-        else -> "Не удалось загрузить страницу. Проверьте адрес, VPN, Wi-Fi."
+        WebViewClient.ERROR_HOST_LOOKUP -> getString(R.string.error_dns)
+        WebViewClient.ERROR_CONNECT -> getString(R.string.error_connection_refused)
+        WebViewClient.ERROR_TIMEOUT -> getString(R.string.error_timeout)
+        WebViewClient.ERROR_FAILED_SSL_HANDSHAKE -> getString(R.string.error_ssl_other)
+        WebViewClient.ERROR_BAD_URL -> getString(R.string.error_invalid_url)
+        WebViewClient.ERROR_UNSUPPORTED_SCHEME -> getString(R.string.error_invalid_url)
+        WebViewClient.ERROR_TOO_MANY_REQUESTS -> getString(R.string.error_generic)
+        else -> getString(R.string.error_generic)
     }
 
     private fun showServerDialog() {
         val input = EditText(this).apply {
-            hint = "https://files.example.com"
+            hint = getString(R.string.server_dialog_hint)
             setText(urlStore.get().orEmpty())
             setSingleLine(true)
         }
@@ -409,16 +422,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         AlertDialog.Builder(this)
-            .setTitle("Адрес File Browser")
-            .setMessage("Укажите адрес вашего File Browser")
+            .setTitle(getString(R.string.server_dialog_title))
+            .setMessage(getString(R.string.server_dialog_message))
             .setView(container)
             .setCancelable(false)
-            .setPositiveButton("Подключиться") { _, _ ->
+            .setPositiveButton(getString(R.string.server_dialog_positive)) { _, _ ->
                 val normalized = ServerUrlStore.normalize(input.text.toString())
                 if (normalized == null) {
                     Toast.makeText(
                         this,
-                        "Некорректный адрес. Пример: https://files.example.com",
+                        getString(R.string.server_invalid),
                         Toast.LENGTH_LONG
                     ).show()
                     showServerDialog()
@@ -427,7 +440,7 @@ class MainActivity : AppCompatActivity() {
                     loadUrl(normalized)
                 }
             }
-            .setNegativeButton("Отмена") { _, _ ->
+            .setNegativeButton(getString(R.string.server_dialog_negative)) { _, _ ->
                 if (urlStore.get().isNullOrBlank()) finish()
             }
             .show()
@@ -435,17 +448,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun showAboutDialog() {
         AlertDialog.Builder(this)
-            .setTitle(AppConfig.APP_NAME)
-            .setMessage("Версия 1.0.0\n\nWebView-клиент для self-hosted File Browser.")
+            .setTitle(getString(R.string.app_name))
+            .setMessage(getString(R.string.about_message, BuildConfig.VERSION_NAME))
             .setPositiveButton("OK", null)
             .show()
     }
 
     private fun clearSession() {
         AlertDialog.Builder(this)
-            .setTitle("Очистить сессию?")
-            .setMessage("Cookies, localStorage и кэш WebView будут удалены. Потребуется повторный вход.")
-            .setPositiveButton("Очистить") { _, _ ->
+            .setTitle(getString(R.string.clear_session_title))
+            .setMessage(getString(R.string.clear_session_message))
+            .setPositiveButton(getString(R.string.clear_session_positive)) { _, _ ->
                 CookieManager.getInstance().apply {
                     removeAllCookies(null)
                     flush()
@@ -463,9 +476,9 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     loadUrl(url)
                 }
-                Toast.makeText(this, "Сессия очищена", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.clear_session_done), Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("Отмена", null)
+            .setNegativeButton(getString(R.string.server_dialog_negative), null)
             .show()
     }
 

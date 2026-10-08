@@ -1,30 +1,37 @@
 # File Browser Mobile
 
-Android-клиент (WebView-обёртка) для self-hosted сервиса
-[FileBrowser Quantum](https://github.com/gtsteffaniak/filebrowser).
+Android WebView client for self-hosted [FileBrowser Quantum](https://github.com/gtsteffaniak/filebrowser).
 
-## Возможности
+## Features
 
-- 🔐 Сохранение сессии (cookies + localStorage) между запусками
-- 📤 Загрузка файлов через системный Android File Picker
-- 📥 Скачивание через Android DownloadManager (файлы в `/Downloads`)
+- 🔐 Session persistence (cookies + localStorage) between launches
+- 📤 Upload files via system Android File Picker
+- 📥 Download via Android DownloadManager (saved to `/Downloads`)
 - 🔄 Pull-to-refresh
-- 🎨 Поддержка светлой/тёмной темы
-- 🌐 Работа с любым self-hosted FileBrowser (HTTP/HTTPS)
-- ⚠️ Понятные экраны ошибок вместо системных страниц WebView
+- 🎨 Light/dark theme support
+- 🌐 Works with any self-hosted FileBrowser (HTTP/HTTPS)
+- ⚠️ Friendly error screens instead of WebView's built-in error pages
+- 🌍 Localized UI (English, Russian)
 
-## Требования
+## Requirements
 
 - Android 8.0+ (API 26)
-- [FileBrowser Quantum](https://github.com/gtsteffaniak/filebrowser) на вашем сервере
+- A [FileBrowser Quantum](https://github.com/gtsteffaniak/filebrowser) instance running on your server
 
-## Скачать
+## Download
 
-Скачайте APK из [Releases](../../releases/latest).
+Grab the APK from [Releases](../../releases/latest).
 
-## Сборка из исходников
+## Building from source
 
-### Debug
+### Requirements
+
+- Android Studio Ladybug (2024.2) or newer
+- JDK 17
+- Android SDK 35
+- Gradle 8.7+
+
+### Debug build
 
 ```bash
 ./gradlew assembleDebug
@@ -32,18 +39,18 @@ Android-клиент (WebView-обёртка) для self-hosted сервиса
 
 APK: `app/build/outputs/apk/debug/app-debug.apk`
 
-### Release
+### Release build
 
-Создайте `keystore.properties` в корне проекта:
+Create `keystore.properties` in the project root:
 
 ```properties
 storeFile=filebrowser-mobile-release.jks
-storePassword=ВАШ_ПАРОЛЬ
+storePassword=YOUR_PASSWORD
 keyAlias=filebrowser-mobile
-keyPassword=ВАШ_ПАРОЛЬ
+keyPassword=YOUR_PASSWORD
 ```
 
-Положите рядом `filebrowser-mobile-release.jks`. Затем:
+Place `filebrowser-mobile-release.jks` next to it. Then:
 
 ```bash
 ./gradlew assembleRelease
@@ -51,19 +58,33 @@ keyPassword=ВАШ_ПАРОЛЬ
 
 APK: `app/build/outputs/apk/release/app-release.apk`
 
-## Настройка
+## Setup
 
-1. Запустите приложение.
-2. Введите адрес FileBrowser: `https://files.example.com` или `http://192.168.1.100:8080`.
-3. Авторизуйтесь (поддерживается 2FA).
-4. Пользуйтесь.
+1. Launch the app.
+2. Enter your FileBrowser URL:
+   - `https://files.example.com`
+   - `http://192.168.1.100:8080`
+3. Sign in (2FA is supported).
+4. Use the app.
 
-## Безопасность
+## Security
 
-- SSL-сертификаты **не отключаются**.
-- Cleartext (HTTP) разрешён осознанно для self-hosted инсталляций.
-- Для внешнего доступа — HTTPS + VPN.
+- SSL certificates are **never bypassed**.
+- Cleartext (HTTP) is allowed **intentionally** for self-hosted setups.
+- For external access, use HTTPS + VPN + reverse proxy.
 
-## Лицензия
+## Tech stack
 
-MIT — см. [LICENSE](LICENSE).
+- Kotlin, AndroidX
+- WebView (Android System WebView)
+- Material Components
+- No Jetpack Compose, no Room, no Firebase
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+## Credits
+
+- [FileBrowser Quantum](https://github.com/gtsteffaniak/filebrowser) — server-side
+- Icon — Material Symbols (folder)

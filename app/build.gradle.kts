@@ -13,8 +13,8 @@ android {
         applicationId = "ru.filebrowser.mobile"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.1.0"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -31,9 +31,9 @@ android {
                 storePassword = props.getProperty("storePassword") ?: ""
                 keyAlias = props.getProperty("keyAlias") ?: "filebrowser-mobile"
                 keyPassword = props.getProperty("keyPassword") ?: ""
-                println("? Signing: using keystore ${storeFile?.absolutePath}")
+                println("Signing: using keystore ${storeFile?.absolutePath}")
             } else {
-                println("?? Signing: keystore.properties NOT FOUND at ${keystorePropsFile.absolutePath}")
+                println("Signing: keystore.properties NOT FOUND at ${keystorePropsFile.absolutePath}")
             }
         }
     }
@@ -47,11 +47,11 @@ android {
                 "proguard-rules.pro"
             )
             val hasKeystore = rootProject.file("keystore.properties").exists()
-            println("?? Build type release: hasKeystore=$hasKeystore")
+            println("Build type release: hasKeystore=$hasKeystore")
             signingConfig = if (hasKeystore) {
                 signingConfigs.getByName("release")
             } else {
-                println("?? Falling back to debug signing")
+                println("Falling back to debug signing")
                 signingConfigs.getByName("debug")
             }
         }
@@ -72,6 +72,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
